@@ -4,4 +4,6 @@ use anchor_lang::prelude::*;
 pub enum CatWifViewError {
     #[msg("Authority is invalid")]
     InvalidAuthority,
+    #[msg("Token account is invalid")]
+    InvalidTokenAccount,
 }
