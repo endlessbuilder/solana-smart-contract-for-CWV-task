@@ -58,10 +58,10 @@ pub fn deposit_a_token<'info>(
     let treasury_a_token_account = ctx.accounts.treasury_a_token_account.as_mut();
 
     treasury.transfer_tokens_from_user(
-        depositor_a_token_account, 
-        treasury_a_token_account,
-        ctx.accounts.depositor,
-        ctx.accounts.token_program,
+        depositor_a_token_account.to_account_info(), 
+        treasury_a_token_account.to_account_info(),
+        ctx.accounts.depositor.to_account_info(),
+        ctx.accounts.token_program.to_account_info(),
         params.amount
     )?;
 
