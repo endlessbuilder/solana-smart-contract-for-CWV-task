@@ -1,6 +1,6 @@
 use crate::{error::CatWifViewError, Treasury};
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Mint, Token, TokenAccount};
+use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct DepositCwvTokenCtx<'info> {
