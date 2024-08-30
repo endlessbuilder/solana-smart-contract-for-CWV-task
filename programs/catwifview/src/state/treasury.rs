@@ -5,10 +5,13 @@ use anchor_spl::token::Transfer;
 #[derive(Default, Debug)]
 pub struct Treasury {
     pub admin: Pubkey,
-    
+
     pub treasury_authority: Pubkey,
     pub treasury_cwv_token_account: Pubkey,
     pub treasury_a_token_account: Pubkey,
+
+    pub token_cwv_mint: Pubkey,
+    pub token_a_mint:Pubkey,
 
     pub num_of_game_played: u64,
     pub num_of_1x_pay: u64,

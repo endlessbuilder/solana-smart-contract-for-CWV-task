@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
-use crate::Treasury;
+use anchor_spl::token::{Mint, Token, TokenAccount};
+use crate::{error::CatWifViewError, Treasury};
 
 #[derive(Accounts)]
 pub struct InitializeCwvVaultCtx<'info> {
@@ -7,11 +8,10 @@ pub struct InitializeCwvVaultCtx<'info> {
     pub payer: Signer<'info>,
 
     #[account(
-        init,
+        mut,
         seeds = [b"treasury"],
-        bump,
-        payer = payer,
-        space = Treasury::LEN
+        bump = treasury.bump,
+        constraint = treasury.admin == payer.key() @ CatWifViewError::InvalidAuthority
         )]
     pub treasury: Box<Account<'info, Treasury>>,
 
@@ -22,7 +22,20 @@ pub struct InitializeCwvVaultCtx<'info> {
     )]
     pub treasury_authority: AccountInfo<'info>,
 
+    pub token_cwv_mint: Box<Account<'info, Mint>>,
+
+    #[account(
+        init,
+        payer = payer,
+        token::mint = token_cwv_mint,
+        token::authority = treasury_authority,
+        seeds = [b"token_cwv_account"],
+        bump
+    )]
+    pub treasury_cwv_token_account: Box<Account<'info, TokenAccount>>,
+
     pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
 }
 
 pub fn initialize_cwv_vault<'info>(
@@ -31,15 +44,12 @@ pub fn initialize_cwv_vault<'info>(
 
     let treasury = ctx.accounts.treasury.as_mut();
 
-    treasury.admin = ctx.accounts.payer.key();
-    treasury.treasury_authority = ctx.accounts.treasury_authority.key();
-    treasury.treasury_authority_bump = ctx.bumps.treasury_authority;
+    treasury.token_cwv_mint = ctx.accounts.token_cwv_mint.key();
+    treasury.treasury_cwv_token_account = ctx.accounts.treasury_cwv_token_account.key();
+    treasury.treasury_cwv_token_account_bump = ctx.bumps.treasury_cwv_token_account;
 
-    treasury.num_of_game_played = 0;
-    treasury.num_of_1x_pay = 0;
-    treasury.num_of_2x_pay = 0;
-    treasury.num_of_3x_pay = 0;
-    treasury.num_of_4x_pay = 0;
+    treasury.token_cwv_amount = 0;
+    treasury.paid_cwv_amount = 0;
 
     Ok(())
 }
