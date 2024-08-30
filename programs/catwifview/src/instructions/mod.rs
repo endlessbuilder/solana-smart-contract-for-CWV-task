@@ -16,3 +16,6 @@ pub use deposit_cwv_token::*;
 pub mod swap_a_with_multi;
 pub use swap_a_with_multi::*;
 
+pub mod start_game;
+pub use start_game::*;
+
