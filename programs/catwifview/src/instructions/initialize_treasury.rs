@@ -31,6 +31,7 @@ pub fn initialize_treasury<'info>(
 
     let treasury = ctx.accounts.treasury.as_mut();
 
+    treasury.bump = ctx.bumps.treasury;
     treasury.admin = ctx.accounts.payer.key();
     treasury.treasury_authority = ctx.accounts.treasury_authority.key();
     treasury.treasury_authority_bump = ctx.bumps.treasury_authority;

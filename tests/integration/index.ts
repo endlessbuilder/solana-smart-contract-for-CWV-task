@@ -9,8 +9,6 @@ import {
   Transaction
 } from '@solana/web3.js'
 import {
-  burnInstructionData,
-  closeAccount,
   TOKEN_PROGRAM_ID
 } from '@solana/spl-token'
 
@@ -131,12 +129,12 @@ export default class CatwifviewImpl {
   public async initializeTreasury (
     payer: PublicKey, //payer
     tokenCwvMint: PublicKey, //CWV token mint
-    treasuryCwvTokenAccount: PublicKey,
-    tokenAMint: PublicKey, // Token A mint
-    treasuryATokenAccount: PublicKey
+    tokenAMint: PublicKey // Token A mint
   ): Promise<Transaction> {
     let treasury = this.getTreasury()
     let treasuryAuthority = this.getTreasuryAuthority()
+    let treasuryCwvTokenAccount = this.getTokenCwvAccount()
+    let treasuryATokenAccount = this.getTokenAAccount()
 
     let initializeTreasuryAccounts = {
       payer,
@@ -145,10 +143,19 @@ export default class CatwifviewImpl {
       ...defaultProgramAccounts
     }
 
-    let ix1 = await this.program.methods
+    let initializeTreasuryTx = await this.program.methods
       .initializeTreasury()
       .accounts(initializeTreasuryAccounts)
-      .instruction()
+      .rpc()
+
+    let latestBlockhash = await this.connection.getLatestBlockhash('finalized')
+    await this.connection.confirmTransaction({
+      signature: initializeTreasuryTx,
+      blockhash: latestBlockhash.blockhash,
+      lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+    })
+
+    console.log('>>> initializeTreasuryTx : ', initializeTreasuryTx)
 
     let initializeCwvVaultAccounts = {
       payer,
@@ -159,7 +166,7 @@ export default class CatwifviewImpl {
       ...defaultProgramAccounts
     }
 
-    let ix2 = await this.program.methods
+    let ix1 = await this.program.methods
       .initializeCwvVault()
       .accounts(initializeCwvVaultAccounts)
       .instruction()
@@ -173,12 +180,12 @@ export default class CatwifviewImpl {
       ...defaultProgramAccounts
     }
 
-    let ix3 = await this.program.methods
+    let ix2 = await this.program.methods
       .initializeAVault()
       .accounts(initializeAVaultAccounts)
       .instruction()
 
-    let tx = new Transaction().add(ix1, ix2, ix3)
+    let tx = new Transaction().add(ix1, ix2)
 
     return tx
   }
@@ -274,17 +281,17 @@ export default class CatwifviewImpl {
   public async startGame (
     amount: BN,
 
-    user: PublicKey,
+    user: Keypair,
     admin: PublicKey,
     userATokenAccount: PublicKey
   ): Promise<Result> {
     let treasury = this.getTreasury()
     let treasuryAuthority = this.getTreasuryAuthority()
     let treasuryATokenAccount = this.getTokenAAccount()
-    let userInfo = this.getUserInfo(user)
+    let userInfo = this.getUserInfo(user.publicKey)
 
     let accounts = {
-      user,
+      user: user.publicKey,
       admin,
       treasury,
       treasuryAuthority,
@@ -301,6 +308,7 @@ export default class CatwifviewImpl {
     let startGameTx = await this.program.methods
       .startGame(params)
       .accounts(accounts)
+      .signers([user])
       .rpc()
 
     return {

@@ -8,7 +8,7 @@ use anchor_lang::prelude::*;
 use instructions::*;
 use state::*;
 
-declare_id!("8KZJqXCybjMKC4NB5g7FsLPNGvNrvtzKD8sk9fUuV5wZ");
+declare_id!("8rJgztGCgqNxHvXNC8LW6AazQhERP9zCuBMRUKkh2MDx");
 
 #[program]
 pub mod catwifview {

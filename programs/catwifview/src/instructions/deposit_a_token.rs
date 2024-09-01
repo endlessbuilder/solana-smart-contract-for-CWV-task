@@ -29,6 +29,7 @@ pub struct DepositATokenCtx<'info> {
     #[account(
         mut,
         constraint = depositor_a_token_account.mint == treasury.token_a_mint @ CatWifViewError::InvalidTokenAccount,
+        constraint = depositor_a_token_account.owner == depositor.key() @ CatWifViewError::InvalidAuthority
     )]
     pub depositor_a_token_account: Box<Account<'info, TokenAccount>>,
 

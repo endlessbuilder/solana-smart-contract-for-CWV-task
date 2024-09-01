@@ -4,12 +4,12 @@ use anchor_spl::token::{Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct SwapAWithMultiCtx<'info> {
-    #[account(mut)]
-    pub user: Signer<'info>,
-
     /// CHECK:
     #[account(mut)]
-    pub admin: AccountInfo<'info>,
+    pub user: AccountInfo<'info>,
+
+    #[account(mut)]
+    pub admin: Signer<'info>,
 
     #[account(
         mut,
@@ -28,6 +28,7 @@ pub struct SwapAWithMultiCtx<'info> {
 
     #[account(
         mut,
+        close = admin,
         seeds = [b"user_info", user.key().as_ref()],
         bump = user_info.bump,
         )]
@@ -36,6 +37,7 @@ pub struct SwapAWithMultiCtx<'info> {
         #[account(
             mut,
             constraint = user_cwv_token_account.mint == treasury.token_cwv_mint @ CatWifViewError::InvalidTokenAccount,
+            constraint = user_cwv_token_account.owner == user.key() @ CatWifViewError::InvalidAuthority
         )]
         pub user_cwv_token_account: Box<Account<'info, TokenAccount>>,
 

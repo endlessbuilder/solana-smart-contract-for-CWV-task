@@ -11,14 +11,8 @@ import {
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
-  Transaction,
-  TransactionInstruction,
-  TransactionMessage,
-  TransactionSignature,
-  VersionedTransaction
+  TransactionInstruction
 } from '@solana/web3.js'
-
-import * as nacl from 'tweetnacl'
 
 export const airDropSol = async (
   connection: Connection,
@@ -150,4 +144,3 @@ export const getAssociatedTokenAccountInstruction = (
 const sleep = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
-
