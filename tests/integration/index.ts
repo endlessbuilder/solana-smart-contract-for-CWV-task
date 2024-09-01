@@ -272,6 +272,80 @@ export default class CatwifviewImpl {
   }
 
   public async startGame (
-    
-  )
+    amount: BN,
+
+    user: PublicKey,
+    admin: PublicKey,
+    userATokenAccount: PublicKey
+  ): Promise<Result> {
+    let treasury = this.getTreasury()
+    let treasuryAuthority = this.getTreasuryAuthority()
+    let treasuryATokenAccount = this.getTokenAAccount()
+    let userInfo = this.getUserInfo(user)
+
+    let accounts = {
+      user,
+      admin,
+      treasury,
+      treasuryAuthority,
+      userATokenAccount,
+      treasuryATokenAccount,
+      userInfo,
+      ...defaultProgramAccounts
+    }
+
+    let params = {
+      amount: amount
+    }
+
+    let startGameTx = await this.program.methods
+      .startGame(params)
+      .accounts(accounts)
+      .rpc()
+
+    return {
+      success: true,
+      msg: null,
+      txId: startGameTx
+    }
+  }
+
+  public async swapAWithMulti (
+    multi: BN,
+
+    user: PublicKey,
+    admin: PublicKey,
+    userCwvTokenAccount: PublicKey
+  ): Promise<Result> {
+    let treasury = this.getTreasury()
+    let treasuryAuthority = this.getTreasuryAuthority()
+    let treasuryCwvTokenAccount = this.getTokenCwvAccount()
+    let userInfo = this.getUserInfo(user)
+
+    let accounts = {
+      user,
+      admin,
+      treasury,
+      treasuryAuthority,
+      userInfo,
+      userCwvTokenAccount,
+      treasuryCwvTokenAccount,
+      ...defaultProgramAccounts
+    }
+
+    let params = {
+      multi: multi.toNumber()
+    }
+
+    let swapAWithMultiTx = await this.program.methods
+      .swapAWithMulti(params)
+      .accounts(accounts)
+      .rpc()
+
+    return {
+      success: true,
+      msg: null,
+      txId: swapAWithMultiTx
+    }
+  }
 }
