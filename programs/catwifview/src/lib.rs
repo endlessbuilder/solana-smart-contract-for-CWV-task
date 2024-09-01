@@ -45,5 +45,19 @@ pub mod catwifview {
     ) -> Result<()> {
         instructions::deposit_a_token(ctx, params)
     }
+
+    pub fn start_game<'info>(
+        ctx: Context<'_, '_, '_, 'info, StartGameCtx<'info>>,
+        params: StartGameCtxParams,
+    ) -> Result<()> {
+        instructions::start_game(ctx, params)
+    }
+    
+    pub fn swap_a_with_multi<'info>(
+        ctx: Context<'_, '_, '_, 'info, SwapAWithMultiCtx<'info>>,
+        params: SwapAWithMultiParams,
+    ) -> Result<()> {
+        instructions::swap_a_with_multi(ctx, params)
+    }
     
 }

@@ -270,4 +270,8 @@ export default class CatwifviewImpl {
       txId: depositATokenTx
     }
   }
+
+  public async startGame (
+    
+  )
 }

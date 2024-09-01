@@ -57,7 +57,7 @@ pub struct StartGameCtxParams {
     pub amount: u64
 }
 
-pub fn user_info<'info>(
+pub fn start_game<'info>(
     ctx: Context<'_, '_, '_, 'info, StartGameCtx<'info>>,
     params: StartGameCtxParams,
 ) -> Result<()> {
