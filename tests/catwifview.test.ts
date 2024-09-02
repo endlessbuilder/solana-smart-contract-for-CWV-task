@@ -10,11 +10,7 @@ import {
 import CatwifviewImpl from './integration'
 import * as utils from './utils'
 import { createMint, mintTo } from '@solana/spl-token'
-import {
-  TOKEN_A_DECIMAL,
-  TOKEN_CWV_DECIMAL,
-  TREASURY
-} from './integration/constants'
+import { TOKEN_A_DECIMAL, TOKEN_CWV_DECIMAL } from './integration/constants'
 import { assert } from 'chai'
 
 describe('catwifview', () => {
@@ -25,7 +21,6 @@ describe('catwifview', () => {
   const payer = wallet.payer
   const program = anchor.workspace.Catwifview as Program<Catwifview>
   console.log('programId ', program.programId.toBase58())
-  // const connection = program.provider.connection
   const connection = new Connection('http://127.0.0.1:8899', 'finalized')
 
   let catwifview: CatwifviewImpl = new CatwifviewImpl(program, connection)
@@ -45,13 +40,13 @@ describe('catwifview', () => {
   it('set up!', async () => {
     // airdrop sol for simulation
     await utils.airDropSol(connection, payerPubkey)
-    console.log(
-      `<<< payer bal = ${await utils.getSolBalance(connection, payerPubkey)}`
-    )
+    // console.log(
+    //   `<<< payer bal = ${await utils.getSolBalance(connection, payerPubkey)}`
+    // )
     await utils.airDropSol(connection, userPubkey)
-    console.log(
-      `<<< user bal = ${await utils.getSolBalance(connection, userPubkey)}`
-    )
+    // console.log(
+    //   `<<< user bal = ${await utils.getSolBalance(connection, userPubkey)}`
+    // )
 
     // create mint of Token A token
     try {
@@ -78,7 +73,7 @@ describe('catwifview', () => {
       userKeypair
     )
     console.log(
-      '<<< user A Token Account Pubkey = ',
+      '>>> user A Token Account Pubkey = ',
       userATokenAccount.toBase58()
     )
     await mintTo(
@@ -101,7 +96,7 @@ describe('catwifview', () => {
       payer
     )
     console.log(
-      '<<< payer A Token Account Pubkey = ',
+      '>>> payer A Token Account Pubkey = ',
       payerATokenAccount.toBase58()
     )
     await mintTo(
@@ -141,7 +136,7 @@ describe('catwifview', () => {
       userKeypair
     )
     console.log(
-      '<<< user CWV token Account Pubkey = ',
+      '>>> user CWV token Account Pubkey = ',
       userCwvTokenAccount.toBase58()
     )
     await mintTo(
@@ -164,7 +159,7 @@ describe('catwifview', () => {
       payer
     )
     console.log(
-      '<<< payer CWV Token Account Pubkey = ',
+      '>>> payer CWV Token Account Pubkey = ',
       payerCwvTokenAccount.toBase58()
     )
     await mintTo(
@@ -205,18 +200,18 @@ describe('catwifview', () => {
     // )
 
     assert.equal(
-      payerPubkey.toBase58(),
       fetchedTreasury.admin.toBase58(),
+      payerPubkey.toBase58(),
       'admin does not be set correctly'
     )
     assert.equal(
-      tokenCwvMint.toBase58(),
       fetchedTreasury.tokenCwvMint.toBase58(),
+      tokenCwvMint.toBase58(),
       'CWV token mint does not be set correctly'
     )
     assert.equal(
-      tokenAMint.toBase58(),
       fetchedTreasury.tokenAMint.toBase58(),
+      tokenAMint.toBase58(),
       'Token A token mint does not be set correctly'
     )
   })
@@ -249,8 +244,8 @@ describe('catwifview', () => {
     )
 
     assert.equal(
-      expectedTokenBal.toString(),
       currentTokenBal.toString(),
+      expectedTokenBal.toString(),
       'fail to deposit'
     )
   })
@@ -283,18 +278,22 @@ describe('catwifview', () => {
     )
 
     assert.equal(
-      expectedTokenBal.toString(),
       currentTokenBal.toString(),
+      expectedTokenBal.toString(),
       'fail to deposit'
     )
   })
 
   it('startGame', async () => {
-    try {
-      let amount = utils.toTokenAmount(1, TOKEN_A_DECIMAL)
+    let preTokenBal = await utils.getBalance(
+      connection,
+      catwifview.getTokenAAccount()
+    )
 
+    let pay_amount = utils.toTokenAmount(1, TOKEN_A_DECIMAL)
+    try {
       let { txId } = await catwifview.startGame(
-        amount, // amount: BN,
+        pay_amount, // amount: BN,
 
         userKeypair, // user
         payerPubkey, // admin,
@@ -305,11 +304,27 @@ describe('catwifview', () => {
       console.log('>>> startGame error # \n ', e)
       assert(false, 'startGame error')
     }
+
+    let expectedTokenBal = new anchor.BN(preTokenBal).add(pay_amount)
+    let currentTokenBal = await utils.getBalance(
+      connection,
+      catwifview.getTokenAAccount()
+    )
+
+    assert.equal(
+      currentTokenBal.toString(),
+      expectedTokenBal.toString(),
+      'fail to pay'
+    )
   })
 
   it('swapAWithMulti', async () => {
+    let preTokenBal = await utils.getBalance(connection, userCwvTokenAccount)
+
+    let multi = new anchor.BN(3)
+    let return_amount = utils.toTokenAmount(1, TOKEN_CWV_DECIMAL).mul(multi)
+
     try {
-      let multi = new anchor.BN(3)
       let { txId } = await catwifview.swapAWithMulti(
         multi, // multi
 
@@ -322,5 +337,17 @@ describe('catwifview', () => {
       console.log('>>> swapAWithMulti error # \n ', e)
       assert(false, 'swapAWithMulti error')
     }
+
+    let expectedTokenBal = new anchor.BN(preTokenBal).add(return_amount)
+    let currentTokenBal = await utils.getBalance(
+      connection,
+      userCwvTokenAccount
+    )
+
+    assert.equal(
+      currentTokenBal.toString(),
+      expectedTokenBal.toString(),
+      'fail to pay for win with multi'
+    )
   })
 })

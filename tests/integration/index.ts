@@ -77,16 +77,6 @@ export default class CatwifviewImpl {
     return PublicKey.findProgramAddressSync(seeds, programId)[0]
   }
 
-  public pdaCheck (
-    PDAs: { pdaIdentifier: string; pdaSeeds: Buffer[]; account: PublicKey }[]
-  ): string {
-    for (var pda of PDAs) {
-      if (this.getPda(pda.pdaSeeds) !== pda.account)
-        return 'Invalid ' + pda.pdaIdentifier + ' account.'
-    }
-    return ''
-  }
-
   public getTreasury (): PublicKey {
     return this.getPda([Buffer.from(TREASURY)])
   }
