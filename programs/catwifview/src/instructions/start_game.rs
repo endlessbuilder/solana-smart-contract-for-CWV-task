@@ -29,6 +29,7 @@ pub struct StartGameCtx<'info> {
     #[account(
         mut,
         constraint = user_a_token_account.mint == treasury.token_a_mint @ CatWifViewError::InvalidTokenAccount,
+        constraint = user_a_token_account.owner == user.key() @ CatWifViewError::InvalidAuthority
     )]
     pub user_a_token_account: Box<Account<'info, TokenAccount>>,
 
@@ -57,7 +58,7 @@ pub struct StartGameCtxParams {
     pub amount: u64
 }
 
-pub fn user_info<'info>(
+pub fn start_game<'info>(
     ctx: Context<'_, '_, '_, 'info, StartGameCtx<'info>>,
     params: StartGameCtxParams,
 ) -> Result<()> {
