@@ -1,6 +1,6 @@
-## Solana smart contract for CWV task
+# Solana smart contract for CWV task
 
-###CATWIFVIEW   
+##CATWIFVIEW   
 
 Tech Specs:  
 
